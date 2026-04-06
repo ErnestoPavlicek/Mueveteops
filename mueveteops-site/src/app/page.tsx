@@ -4,6 +4,7 @@ import { Footer } from "@/components/Footer";
 import { SectionLabel } from "@/components/SectionLabel";
 import { CTASection } from "@/components/CTASection";
 import { BookCallButton } from "@/components/BookCallButton";
+import { Button } from "@/components/ui/Button";
 
 const services = [
   {
@@ -96,16 +97,12 @@ export default function HomePage() {
             agents, and creative pipelines that actually ship results.
           </p>
           <div className="flex flex-col sm:flex-row gap-4">
-            <BookCallButton
-              text="Book a Meeting"
-              className="border border-[var(--text-primary)] text-[var(--text-primary)] font-semibold text-base px-7 py-3.5 rounded-lg hover:bg-white/[0.06] transition-colors text-center"
-            />
-            <Link
-              href="/ai-audit"
-              className="bg-[var(--accent)] text-[var(--bg)] font-semibold text-base px-7 py-3.5 rounded-lg hover:opacity-90 transition-opacity text-center"
-            >
+            <BookCallButton variant="outline" size="md">
+              Book a Meeting
+            </BookCallButton>
+            <Button href="/ai-audit" variant="primary" size="md">
               Free AI Audit
-            </Link>
+            </Button>
           </div>
         </div>
       </section>
@@ -235,24 +232,6 @@ export default function HomePage() {
               </span>
             </div>
           ))}
-        </div>
-        <div className="flex max-w-[820px] gap-6 lg:gap-8">
-          <div
-            aria-hidden
-            className="w-[2px] rounded-full flex-shrink-0"
-            style={{ background: "var(--gradient-brand)" }}
-          />
-          <blockquote className="flex-1">
-            <p className="text-display-3 italic text-[var(--text-primary)] mb-4 max-w-[55ch]">
-              &ldquo;MueveOps transformed how we handle client onboarding. What
-              used to take 3 hours now takes 20 minutes. The AI agent they built
-              handles 80% of the process automatically.&rdquo;
-            </p>
-            <footer className="text-body text-[var(--text-secondary)]">
-              <span className="font-semibold text-[var(--text-primary)]">Sarah K.</span>
-              {" — "}Head of Operations, TechScale
-            </footer>
-          </blockquote>
         </div>
       </section>
 

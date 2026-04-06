@@ -1,30 +1,10 @@
 import type { Metadata, Viewport } from "next";
-import { Manrope, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 
-// Both Manrope and JetBrains Mono are variable fonts — omitting `weight`
-// loads the variable version, giving us every weight from a single file
-// with metric-matched fallbacks to prevent layout shift.
-const manrope = Manrope({
-  variable: "--font-manrope",
-  subsets: ["latin"],
-  display: "swap",
-  fallback: ["system-ui", "sans-serif"],
-  adjustFontFallback: true,
-});
-
-const jetbrainsMono = JetBrains_Mono({
-  variable: "--font-jetbrains-mono",
-  subsets: ["latin"],
-  display: "swap",
-  fallback: ["ui-monospace", "monospace"],
-  adjustFontFallback: true,
-});
-
 export const metadata: Metadata = {
-  title: "MueveOps — AI Solutions Agency",
+  title: "MueveOps - AI Solutions Agency",
   description:
-    "We build AI systems that integrate into your business — automations, agents, and creative pipelines that actually ship results.",
+    "We build automations, AI agents, and content pipelines that plug into your existing tools and start saving your team hours in week one.",
 };
 
 export const viewport: Viewport = {
@@ -41,10 +21,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html
-      lang="en"
-      className={`${manrope.variable} ${jetbrainsMono.variable} h-full`}
-    >
+    <html lang="en" className="h-full">
       <body
         id="root"
         className="h-full font-body bg-[var(--bg)] text-[var(--text-primary)]"

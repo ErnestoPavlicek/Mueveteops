@@ -1,6 +1,7 @@
 "use client";
 
 import { useId, useState } from "react";
+import { Button } from "./ui/Button";
 
 type Status = "idle" | "submitting" | "success" | "error";
 
@@ -17,6 +18,9 @@ export function ContactForm() {
   const [status, setStatus] = useState<Status>("idle");
   const [errors, setErrors] = useState<FieldErrors>({});
   const [messageLen, setMessageLen] = useState(0);
+  // Bumped each time validation fails — keyed onto the form so the
+  // shake animation re-fires from scratch even on repeated errors.
+  const [shakeKey, setShakeKey] = useState(0);
 
   function validate(formData: FormData): FieldErrors {
     const next: FieldErrors = {};
@@ -53,6 +57,7 @@ export function ContactForm() {
     const fieldErrors = validate(formData);
     setErrors(fieldErrors);
     if (Object.keys(fieldErrors).length > 0) {
+      setShakeKey((k) => k + 1);
       // Focus the first invalid field
       const firstKey = Object.keys(fieldErrors)[0];
       const el = e.currentTarget.querySelector<HTMLElement>(
@@ -81,6 +86,7 @@ export function ContactForm() {
       setMessageLen(0);
     } catch {
       setStatus("error");
+      setShakeKey((k) => k + 1);
     }
   }
 
@@ -92,16 +98,21 @@ export function ContactForm() {
 
   return (
     <form
+      key={shakeKey > 0 && (Object.keys(errors).length > 0 || status === "error") ? `shake-${shakeKey}` : "form"}
       noValidate
       onSubmit={onSubmit}
-      className="rounded-xl bg-[#0D1117] border border-[var(--border)] p-6 sm:p-8 lg:p-10 flex flex-col gap-6 sm:gap-7"
+      className={`rounded-2xl bg-[var(--bg-card)] border border-[var(--border-strong)] p-7 sm:p-9 lg:p-12 flex flex-col gap-6 sm:gap-7 accent-shadow ${
+        shakeKey > 0 && (Object.keys(errors).length > 0 || status === "error")
+          ? "field-shake"
+          : ""
+      }`}
       aria-labelledby={`${formId}-title`}
     >
       <h2
         id={`${formId}-title`}
-        className="text-heading text-[var(--text-primary)]"
+        className="text-display-3 text-[var(--text-primary)]"
       >
-        Send us a message
+        Send us a <span className="text-gradient">message.</span>
       </h2>
       <p className="text-body text-[var(--text-secondary)]">
         Tell us about your business and we&apos;ll get back to you within 24
@@ -181,7 +192,7 @@ export function ContactForm() {
             errors.message ? `${messageId}-error` : messageHintId
           }
           placeholder="Tell us about your project and how we can help..."
-          className="min-h-[130px] rounded-md bg-[var(--bg-input)] border border-[var(--border)] px-3.5 py-3.5 text-base text-[var(--text-primary)] placeholder:text-white/[0.19] leading-relaxed resize-y focus:outline-none focus:border-[var(--accent)] transition-colors break-words"
+          className="field-input min-h-[140px] rounded-xl bg-[var(--bg-input)] border-2 border-[var(--border)] px-4 py-3.5 text-base text-[var(--text-primary)] placeholder:text-white/[0.19] leading-relaxed resize-y break-words"
         />
         {errors.message ? (
           <p
@@ -198,24 +209,49 @@ export function ContactForm() {
         )}
       </div>
 
-      <button
+      <Button
         type="submit"
-        disabled={status === "submitting"}
-        aria-busy={status === "submitting"}
-        className="h-12 w-full rounded-md bg-[var(--accent)] text-[var(--bg)] font-semibold text-base hover:opacity-90 transition-opacity disabled:opacity-60 disabled:cursor-not-allowed"
+        variant="primary"
+        size="lg"
+        fullWidth
+        disabled={status === "submitting" || status === "success"}
+        ariaBusy={status === "submitting"}
       >
-        {status === "submitting" ? "Sending…" : "Send Message"}
-      </button>
+        {status === "submitting" ? (
+          <>
+            <span aria-hidden className="spinner" />
+            <span>Sending…</span>
+          </>
+        ) : status === "success" ? (
+          <>
+            <svg
+              aria-hidden
+              viewBox="0 0 24 24"
+              className="check-icon w-5 h-5"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth={3}
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <path d="M5 12.5 10 17 19 7" />
+            </svg>
+            <span>Sent</span>
+          </>
+        ) : (
+          <span>Send Message →</span>
+        )}
+      </Button>
 
       {/* Live region for async status */}
       <div role="status" aria-live="polite" className="min-h-[1.25rem]">
         {status === "success" && (
-          <p className="text-sm text-[var(--accent)]">
+          <p className="text-sm text-[var(--accent)] animate-rise-in">
             Thanks — your message is in. We&apos;ll be in touch within 24 hours.
           </p>
         )}
         {status === "error" && (
-          <p className="text-sm text-red-400">
+          <p className="text-sm text-red-400 animate-rise-in">
             Something went wrong sending your message. Please try again, or
             email{" "}
             <a
@@ -282,7 +318,7 @@ function Field({
         required={required}
         aria-invalid={error ? "true" : undefined}
         aria-describedby={error ? errorId : undefined}
-        className="h-11 min-w-0 w-full rounded-md bg-[var(--bg-input)] border border-[var(--border)] px-3.5 text-base text-[var(--text-primary)] placeholder:text-white/[0.19] focus:outline-none focus:border-[var(--accent)] transition-colors"
+        className="field-input h-12 min-w-0 w-full rounded-xl bg-[var(--bg-input)] border-2 border-[var(--border)] px-4 text-base text-[var(--text-primary)] placeholder:text-white/[0.19]"
       />
       {error && (
         <p id={errorId} className="text-sm text-red-400" role="alert">

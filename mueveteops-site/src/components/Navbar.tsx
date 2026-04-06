@@ -3,11 +3,11 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
+import { Button } from "./ui/Button";
 
 const navLinks = [
   { label: "Services", href: "/services" },
   { label: "AI Audit", href: "/ai-audit" },
-  { label: "Case Studies", href: "/case-studies" },
   { label: "About", href: "/about" },
   { label: "Contact", href: "/contact" },
 ];
@@ -44,42 +44,50 @@ export function Navbar() {
 
   return (
     <>
-      <div className="h-[64px] lg:h-[72px]" aria-hidden />
+      <div className="h-[72px] lg:h-[84px]" aria-hidden />
       <nav
-        className={`fixed top-0 inset-x-0 z-50 flex items-center justify-between px-5 sm:px-8 lg:px-16 h-[64px] lg:h-[72px] transition-[background-color,backdrop-filter,border-color,box-shadow] duration-200 ${
+        className={`fixed top-0 inset-x-0 z-50 flex items-center justify-between px-5 sm:px-8 lg:px-16 h-[72px] lg:h-[84px] transition-[background-color,backdrop-filter,border-color,box-shadow] duration-200 ${
           scrolled || menuOpen
-            ? "bg-[var(--bg)]/70 backdrop-blur-md border-b border-[var(--divider)] shadow-[0_4px_24px_rgba(0,0,0,0.4)]"
-            : "bg-[var(--bg)] border-b border-transparent"
+            ? "bg-[var(--bg)]/80 backdrop-blur-xl border-b border-[var(--border-strong)] shadow-[0_8px_40px_rgba(0,0,0,0.5)]"
+            : "bg-transparent border-b border-transparent"
         }`}
       >
         <Link
           href="/"
-          className="font-heading text-xl font-bold text-[var(--text-primary)]"
+          className="group inline-flex items-center gap-3"
         >
-          MueveOps
+          <span
+            aria-hidden
+            className="inline-block w-3 h-3 rounded-full"
+            style={{ background: "var(--accent)", boxShadow: "0 0 24px var(--accent-glow)" }}
+          />
+          <span className="font-heading text-2xl font-black tracking-[-0.02em] text-[var(--text-primary)]">
+            mueve<span className="text-[var(--accent)]">ops</span>
+          </span>
         </Link>
 
         {/* Desktop links */}
-        <div className="hidden lg:flex items-center gap-8">
-          {navLinks.map((link) => (
-            <Link
-              key={link.href}
-              href={link.href}
-              className={`text-base transition-colors min-h-11 inline-flex items-center ${
-                pathname === link.href
-                  ? "text-[var(--accent)] font-semibold"
-                  : "text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
-              }`}
-            >
-              {link.label}
-            </Link>
-          ))}
-          <Link
-            href="/ai-audit"
-            className="bg-[var(--accent)] text-[var(--bg)] font-semibold text-base px-5 min-h-11 inline-flex items-center rounded-lg hover:opacity-90 transition-opacity"
-          >
-            Free AI Audit
-          </Link>
+        <div className="hidden lg:flex items-center gap-10">
+          {navLinks.map((link) => {
+            const active = pathname === link.href;
+            return (
+              <Link
+                key={link.href}
+                href={link.href}
+                data-active={active ? "true" : "false"}
+                className={`nav-underline text-eyebrow min-h-11 inline-flex items-center transition-colors ${
+                  active
+                    ? "text-[var(--accent)]"
+                    : "text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
+                }`}
+              >
+                {link.label}
+              </Link>
+            );
+          })}
+          <Button href="/ai-audit" variant="primary" size="sm">
+            Free AI Audit →
+          </Button>
         </div>
 
         {/* Mobile hamburger */}
@@ -122,27 +130,44 @@ export function Navbar() {
       {menuOpen && (
         <div
           id="mobile-nav"
-          className="lg:hidden fixed inset-x-0 top-[64px] bottom-0 z-40 bg-[var(--bg)]/95 backdrop-blur-md border-t border-[var(--divider)] flex flex-col px-5 py-6 gap-1 overflow-y-auto"
+          className="animate-sheet-in lg:hidden fixed inset-x-0 top-[72px] bottom-0 z-40 bg-[var(--bg)]/95 backdrop-blur-xl border-t border-[var(--border-strong)] flex flex-col px-5 py-8 gap-1 overflow-y-auto"
         >
-          {navLinks.map((link) => (
+          {navLinks.map((link, i) => (
             <Link
               key={link.href}
               href={link.href}
-              className={`min-h-12 inline-flex items-center text-lg border-b border-[var(--divider)] ${
+              className={`animate-rise-in min-h-14 inline-flex items-center text-2xl font-heading font-bold border-b border-[var(--divider)] ${
                 pathname === link.href
-                  ? "text-[var(--accent)] font-semibold"
-                  : "text-[var(--text-primary)]"
+                  ? "text-[var(--accent)]"
+                  : "text-[var(--text-primary)] hover:text-[var(--accent)] transition-colors"
               }`}
+              style={
+                {
+                  "--rise-delay": `${80 + i * 60}ms`,
+                } as React.CSSProperties & Record<`--${string}`, string>
+              }
             >
               {link.label}
             </Link>
           ))}
-          <Link
-            href="/ai-audit"
-            className="mt-6 bg-[var(--accent)] text-[var(--bg)] font-semibold text-base px-5 min-h-12 inline-flex items-center justify-center rounded-lg"
+          <div
+            className="animate-rise-in mt-8"
+            style={
+              {
+                "--rise-delay": `${80 + navLinks.length * 60}ms`,
+              } as React.CSSProperties & Record<`--${string}`, string>
+            }
           >
-            Free AI Audit
-          </Link>
+            <Button
+              href="/ai-audit"
+              variant="primary"
+              size="md"
+              fullWidth
+              className="min-h-12"
+            >
+              Free AI Audit →
+            </Button>
+          </div>
         </div>
       )}
     </>

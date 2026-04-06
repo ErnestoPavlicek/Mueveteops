@@ -1,5 +1,5 @@
-import Link from "next/link";
 import { BookCallButton } from "./BookCallButton";
+import { Button } from "./ui/Button";
 
 interface CTASectionProps {
   heading: string;
@@ -12,12 +12,6 @@ interface CTASectionProps {
   secondaryAsBookCall?: boolean;
 }
 
-const PRIMARY_CLASS =
-  "bg-[var(--accent)] text-[var(--bg)] font-semibold text-base px-8 py-4 rounded-lg hover:opacity-90 transition-opacity text-center";
-
-const SECONDARY_CLASS =
-  "border border-[var(--border)] text-[var(--text-primary)] font-medium text-base px-8 py-4 rounded-lg hover:bg-white/[0.04] transition-colors text-center";
-
 export function CTASection({
   heading,
   subtitle,
@@ -29,34 +23,70 @@ export function CTASection({
   secondaryAsBookCall,
 }: CTASectionProps) {
   return (
-    <section className="px-5 sm:px-8 lg:px-16 py-20 lg:py-28 border-t border-[var(--divider)]">
-      <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-10 lg:gap-16">
-        <div className="flex flex-col gap-4 max-w-[640px]">
-          <h2 className="text-display-2 text-[var(--text-primary)]">
+    <section className="relative px-5 sm:px-8 lg:px-16 py-28 lg:py-40 border-t border-[var(--border-strong)] overflow-hidden">
+      {/* Backdrop layers */}
+      <div aria-hidden className="absolute inset-0 -z-10 bg-grid-fade opacity-60" />
+      <div
+        aria-hidden
+        className="absolute -z-10 glow-teal animate-glow-drift"
+        style={{ width: 700, height: 700, left: "-10%", top: "-30%" }}
+      />
+      <div
+        aria-hidden
+        className="absolute -z-10 glow-purple animate-glow-drift"
+        style={{
+          width: 600,
+          height: 600,
+          right: "-15%",
+          bottom: "-30%",
+          animationDelay: "-5s",
+        }}
+      />
+      <div aria-hidden className="absolute inset-0 -z-10 bg-noise" />
+
+      {/* Giant outline ghost word */}
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-x-0 -bottom-6 lg:-bottom-12 text-mega text-outline opacity-30 leading-none whitespace-nowrap text-center select-none"
+        style={{ fontSize: "clamp(5rem, 18vw, 18rem)" }}
+      >
+        MUEVE
+      </div>
+
+      <div className="relative flex flex-col gap-12 lg:gap-16">
+        <div className="flex flex-col gap-6 max-w-[18ch]">
+          <span className="text-eyebrow text-[var(--accent)]">▸ Next Step</span>
+          {/* whitespace-pre-line honors author-controlled line breaks in the
+              `heading` prop while still allowing natural word wrapping. */}
+          <h2 className="text-display-1 text-[var(--text-primary)] whitespace-pre-line">
             {heading}
           </h2>
           {subtitle && (
-            <p className="text-body-lg text-[var(--text-secondary)] max-w-[60ch]">
+            <p className="text-body-lg text-[var(--text-secondary)] max-w-[52ch]">
               {subtitle}
             </p>
           )}
         </div>
-        <div className="flex flex-col sm:flex-row gap-3 lg:flex-shrink-0">
+        <div className="flex flex-col sm:flex-row gap-4 lg:flex-shrink-0">
           {primaryAsBookCall ? (
-            <BookCallButton text={primaryLabel} className={PRIMARY_CLASS} />
-          ) : (
-            <Link href={primaryHref} className={PRIMARY_CLASS}>
+            <BookCallButton variant="primary" size="lg">
               {primaryLabel}
-            </Link>
+            </BookCallButton>
+          ) : (
+            <Button variant="primary" size="lg" href={primaryHref}>
+              {primaryLabel}
+            </Button>
           )}
           {secondaryLabel &&
             (secondaryAsBookCall ? (
-              <BookCallButton text={secondaryLabel} className={SECONDARY_CLASS} />
+              <BookCallButton variant="outline" size="lg">
+                {secondaryLabel}
+              </BookCallButton>
             ) : (
               secondaryHref && (
-                <Link href={secondaryHref} className={SECONDARY_CLASS}>
+                <Button variant="outline" size="lg" href={secondaryHref}>
                   {secondaryLabel}
-                </Link>
+                </Button>
               )
             ))}
         </div>

@@ -1,28 +1,52 @@
 @import "tailwindcss";
 
 :root {
-  --bg: #0A0A0F;
-  --bg-card: #1A1A2E;
-  --bg-input: rgba(255, 255, 255, 0.024);
-  --accent: #0BFFC2;
-  --accent-muted: rgba(11, 255, 194, 0.1);
-  --accent-2: #7C6AFF;
-  --accent-2-muted: rgba(124, 106, 255, 0.12);
-  --gradient-brand: linear-gradient(135deg, #0BFFC2 0%, #7C6AFF 100%);
-  --text-primary: #F0F0F0;
-  --text-secondary: rgba(255, 255, 255, 0.35);
-  --border: rgba(255, 255, 255, 0.1);
-  --divider: rgba(255, 255, 255, 0.08);
+  /* ─── Color tokens ───────────────────────────────────────────
+     Maximalist palette: deeper, slightly purple-tinted blacks
+     so the teal pops harder, with a hot magenta as a third
+     "danger" accent for emphasis moments. Tinted neutrals
+     instead of pure greys.
+  */
+  --bg: #07070C;
+  --bg-elev: #0D0D17;
+  --bg-card: #131325;
+  --bg-card-2: #1A1A30;
+  --bg-input: rgba(255, 255, 255, 0.028);
 
-  /* ─── Type system ─────────────────────────────────────────────
-     Semantic tokens. Display sizes are fluid for marketing pages;
-     body and meta stay fixed. Tracking is tight on display
-     (engineered/Linear feel) and open on the mono eyebrow.
-     Pin-point spec from brand context: 72 / 48 / 22 hierarchy.
+  --accent: #0BFFC2;
+  --accent-soft: #5DFFD8;
+  --accent-muted: rgba(11, 255, 194, 0.12);
+  --accent-glow: rgba(11, 255, 194, 0.45);
+
+  --accent-2: #8B7BFF;
+  --accent-2-muted: rgba(139, 123, 255, 0.14);
+  --accent-2-glow: rgba(139, 123, 255, 0.45);
+
+  --accent-3: #FF3D8B; /* hot magenta — used sparingly for danger/emphasis */
+  --accent-3-muted: rgba(255, 61, 139, 0.14);
+
+  --gradient-brand: linear-gradient(110deg, #0BFFC2 0%, #8B7BFF 55%, #FF3D8B 100%);
+  --gradient-brand-soft: linear-gradient(135deg, rgba(11,255,194,0.16) 0%, rgba(139,123,255,0.18) 100%);
+  --gradient-text: linear-gradient(95deg, #0BFFC2 0%, #8B7BFF 50%, #FF3D8B 100%);
+
+  --text-primary: #F4F4F8;
+  --text-secondary: rgba(244, 244, 248, 0.55);
+  --text-tertiary: rgba(244, 244, 248, 0.32);
+  --border: rgba(255, 255, 255, 0.09);
+  --border-strong: rgba(255, 255, 255, 0.18);
+  --divider: rgba(255, 255, 255, 0.07);
+
+  /* ─── Type system ───────────────────────────────────────────
+     Maximalist scale. Display-1 reaches ~9rem on big screens.
+     Weights pinned at 800/900 for display, 300/400 for body —
+     extreme weight contrast. Tracking pulled tighter on display.
   */
   --font-display: var(--font-manrope), "Manrope", system-ui, sans-serif;
   --font-body: var(--font-manrope), "Manrope", system-ui, sans-serif;
   --font-mono: var(--font-jetbrains-mono), "JetBrains Mono", ui-monospace, monospace;
+
+  --ease-out-quart: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 @layer base {
@@ -38,6 +62,8 @@
   body {
     /* Prevent horizontal scroll from any unintended overflow */
     overflow-x: hidden;
+    background: var(--bg);
+    color: var(--text-primary);
   }
 
   /* Long words/URLs/emails shouldn't blow out narrow containers */
@@ -46,15 +72,23 @@
     word-wrap: break-word;
   }
 
-  /* Visible focus for keyboard users */
+  ::selection {
+    background: var(--accent);
+    color: var(--bg);
+  }
+
+  /* Visible focus for keyboard users. Modern browsers draw `outline` along
+     the element's own border-radius, so we intentionally do NOT set a
+     border-radius here — doing so would clobber each element's own shape
+     (rounded-lg buttons/inputs would snap to rounded-sm on focus). */
   :focus-visible {
     outline: 2px solid var(--accent);
-    outline-offset: 2px;
-    border-radius: 4px;
+    outline-offset: 3px;
   }
 
   .font-heading {
     font-family: var(--font-display);
+    font-feature-settings: "ss01", "ss02", "kern";
   }
 
   .font-body {
@@ -63,6 +97,7 @@
 
   .font-mono {
     font-family: var(--font-mono);
+    font-feature-settings: "calt", "zero";
   }
 
   body {
@@ -75,45 +110,54 @@
 }
 
 /* ─── Type system utilities ────────────────────────────────────
-   Use these instead of arbitrary text-[...] sizes. Same role →
-   same token across the whole site.
+   Maximalist hierarchy. text-mega for hero statement type
+   (clamps up to ~11rem). text-display-1/2/3 punched up. Body
+   text and meta hold their ground.
 */
 @layer components {
+  .text-mega {
+    font-family: var(--font-display);
+    font-size: clamp(3.25rem, 0.5rem + 11vw, 11rem);
+    line-height: 0.86;
+    letter-spacing: -0.045em;
+    font-weight: 900;
+  }
+
   .text-display-1 {
     font-family: var(--font-display);
-    font-size: clamp(2.5rem, 0.875rem + 4.5vw, 4.5rem);
-    line-height: 1.02;
-    letter-spacing: -0.025em;
-    font-weight: 700;
+    font-size: clamp(2.75rem, 1rem + 6vw, 6.5rem);
+    line-height: 0.95;
+    letter-spacing: -0.035em;
+    font-weight: 900;
   }
 
   .text-display-2 {
     font-family: var(--font-display);
-    font-size: clamp(1.875rem, 1.25rem + 1.75vw, 3rem);
-    line-height: 1.05;
-    letter-spacing: -0.022em;
-    font-weight: 700;
+    font-size: clamp(2.125rem, 1rem + 3.25vw, 4.25rem);
+    line-height: 0.98;
+    letter-spacing: -0.028em;
+    font-weight: 800;
   }
 
   .text-display-3 {
     font-family: var(--font-display);
-    font-size: clamp(1.75rem, 1.5rem + 0.625vw, 2.25rem);
-    line-height: 1.1;
-    letter-spacing: -0.018em;
-    font-weight: 700;
+    font-size: clamp(1.875rem, 1.4rem + 1.4vw, 2.875rem);
+    line-height: 1.05;
+    letter-spacing: -0.022em;
+    font-weight: 800;
   }
 
   .text-heading {
     font-family: var(--font-display);
-    font-size: 1.375rem; /* 22px — brand spec */
+    font-size: 1.5rem; /* 24px */
     line-height: 1.2;
-    letter-spacing: -0.012em;
-    font-weight: 700;
+    letter-spacing: -0.014em;
+    font-weight: 800;
   }
 
   .text-body-lg {
     font-family: var(--font-body);
-    font-size: 1.125rem; /* 18px */
+    font-size: 1.1875rem; /* 19px */
     line-height: 1.6;
     font-weight: 400;
   }
@@ -132,21 +176,399 @@
     font-weight: 500;
   }
 
-  /* Mono small caps eyebrow — the engineered signal label */
+  /* Mono small caps eyebrow — punched up tracking. */
   .text-eyebrow {
     font-family: var(--font-mono);
     font-size: 0.75rem; /* 12px */
     line-height: 1.4;
-    letter-spacing: 0.16em;
+    letter-spacing: 0.22em;
     font-weight: 500;
     text-transform: uppercase;
   }
 
-  /* Tabular numerals for stat displays — every digit same width.
-     Pair with display tokens on metric numbers. */
+  /* Ultra-thin display modifier. Pair with text-display-* on
+     a single word to create extreme weight contrast next to
+     900-weight neighbors. */
+  .display-thin {
+    font-weight: 200;
+    font-style: italic;
+  }
+
+  /* Tabular numerals for stat displays. */
   .tabular {
     font-variant-numeric: tabular-nums;
     font-feature-settings: "tnum", "kern";
+  }
+
+  /* Brand gradient text utility. */
+  .text-gradient {
+    background-image: var(--gradient-text);
+    background-clip: text;
+    -webkit-background-clip: text;
+    color: transparent;
+  }
+
+  /* Outlined display text — used as decorative ghost layers
+     behind headlines for depth and editorial weight. */
+  .text-outline {
+    color: transparent;
+    -webkit-text-stroke: 1.5px var(--border-strong);
+  }
+}
+
+/* ─── Decorative backdrops ─────────────────────────────────────
+   Subtle but unmistakable: a tinted dot grid + a soft brand
+   glow lobe. These live behind hero sections to give the dark
+   canvas weight without resorting to glassmorphism.
+*/
+@layer components {
+  .bg-grid {
+    background-image:
+      radial-gradient(circle at 1px 1px, rgba(255,255,255,0.06) 1px, transparent 0);
+    background-size: 28px 28px;
+  }
+
+  .bg-grid-fade {
+    background-image:
+      radial-gradient(circle at 1px 1px, rgba(255,255,255,0.07) 1px, transparent 0);
+    background-size: 32px 32px;
+    -webkit-mask-image: radial-gradient(ellipse at center, black 30%, transparent 75%);
+            mask-image: radial-gradient(ellipse at center, black 30%, transparent 75%);
+  }
+
+  .bg-noise {
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 0.42 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    mix-blend-mode: overlay;
+    opacity: 0.35;
+    pointer-events: none;
+  }
+
+  .glow-teal {
+    background: radial-gradient(closest-side, var(--accent-glow), transparent 70%);
+    filter: blur(60px);
+    pointer-events: none;
+  }
+
+  .glow-purple {
+    background: radial-gradient(closest-side, var(--accent-2-glow), transparent 70%);
+    filter: blur(60px);
+    pointer-events: none;
+  }
+
+  .glow-magenta {
+    background: radial-gradient(closest-side, rgba(255,61,139,0.45), transparent 70%);
+    filter: blur(60px);
+    pointer-events: none;
+  }
+
+  .accent-shadow {
+    box-shadow:
+      0 0 0 1px var(--border-strong),
+      0 24px 60px -20px rgba(11,255,194,0.35),
+      0 12px 36px -12px rgba(139,123,255,0.28);
+  }
+
+  .ring-accent {
+    box-shadow:
+      inset 0 0 0 1px var(--border-strong),
+      0 0 0 1px rgba(11,255,194,0.0);
+    transition: box-shadow 360ms var(--ease-out-quart);
+  }
+  .ring-accent:hover {
+    box-shadow:
+      inset 0 0 0 1px var(--accent),
+      0 0 0 4px var(--accent-muted);
+  }
+}
+
+/* ─── Motion system ────────────────────────────────────────────
+   Maximalist motion: rise-in for hero stagger, scroll reveal,
+   marquee scroll, gradient sweep, hero glow drift, accent
+   shimmer for buttons, card-lift retained from previous system.
+*/
+@layer components {
+  @keyframes rise-in {
+    from {
+      opacity: 0;
+      transform: translate3d(0, 24px, 0) scale(0.99);
+    }
+    to {
+      opacity: 1;
+      transform: translate3d(0, 0, 0) scale(1);
+    }
+  }
+
+  @keyframes hero-glow-drift {
+    0%, 100% { transform: translate3d(0,0,0) scale(1); opacity: 0.65; }
+    50%      { transform: translate3d(40px,-20px,0) scale(1.1); opacity: 0.85; }
+  }
+
+  @keyframes marquee {
+    from { transform: translate3d(0, 0, 0); }
+    to   { transform: translate3d(-50%, 0, 0); }
+  }
+
+  @keyframes gradient-sweep {
+    0%   { background-position: 0% 50%; }
+    100% { background-position: 200% 50%; }
+  }
+
+  @keyframes shimmer-line {
+    0%   { transform: translate3d(-100%, 0, 0); }
+    100% { transform: translate3d(100%, 0, 0); }
+  }
+
+  /* Per-line headline mask reveal — the signature hero motion.
+     Each line wraps in .text-reveal with its own --reveal-delay
+     and rises into view from behind a horizontal mask. Combined
+     with a slight Y translate it feels kinetic instead of static. */
+  @keyframes mask-up {
+    from {
+      opacity: 0;
+      transform: translate3d(0, 80%, 0);
+    }
+    to {
+      opacity: 1;
+      transform: translate3d(0, 0, 0);
+    }
+  }
+
+  @keyframes shake {
+    0%, 100%   { transform: translate3d(0, 0, 0); }
+    20%, 60%   { transform: translate3d(-6px, 0, 0); }
+    40%, 80%   { transform: translate3d(6px, 0, 0); }
+  }
+
+  @keyframes spin {
+    to { transform: rotate(360deg); }
+  }
+
+  @keyframes check-draw {
+    to { stroke-dashoffset: 0; }
+  }
+
+  @keyframes pulse-glow {
+    0%, 100% { box-shadow: 0 0 0 0 var(--accent-muted); }
+    50%      { box-shadow: 0 0 0 8px rgba(11,255,194,0); }
+  }
+
+  /* Page-load entrance. Apply to hero elements with inline
+     --rise-delay to stagger. */
+  .animate-rise-in {
+    opacity: 0;
+    animation: rise-in 900ms var(--ease-out-expo) both;
+    animation-delay: var(--rise-delay, 0ms);
+  }
+
+  .animate-glow-drift {
+    animation: hero-glow-drift 14s ease-in-out infinite;
+  }
+
+  .animate-gradient-sweep {
+    background-size: 200% 200%;
+    animation: gradient-sweep 8s linear infinite;
+  }
+
+  .animate-marquee {
+    display: inline-flex;
+    animation: marquee 38s linear infinite;
+    will-change: transform;
+  }
+  /* Pause the tape on hover so users can read it. */
+  .marquee-track:hover .animate-marquee {
+    animation-play-state: paused;
+  }
+
+  /* Headline mask reveal — wrap each line in a .text-reveal-line
+     with overflow:hidden, then a child .text-reveal-inner gets
+     the animation. Stagger lines with --rise-delay. */
+  .text-reveal-line {
+    display: block;
+    overflow: hidden;
+    padding-bottom: 0.12em; /* prevent descender clipping */
+  }
+  .text-reveal-inner {
+    display: inline-block;
+    opacity: 0;
+    animation: mask-up 1100ms var(--ease-out-expo) both;
+    animation-delay: var(--rise-delay, 0ms);
+    will-change: transform, opacity;
+  }
+
+  /* Form field — focus ring with brand glow. */
+  .field-input {
+    transition:
+      border-color 240ms var(--ease-out-quart),
+      box-shadow 280ms var(--ease-out-quart),
+      background-color 240ms var(--ease-out-quart);
+  }
+  .field-input:focus {
+    outline: none;
+    border-color: var(--accent);
+    background-color: rgba(11,255,194,0.04);
+    box-shadow: 0 0 0 4px var(--accent-muted), 0 8px 24px -8px var(--accent-glow);
+  }
+  .field-input[aria-invalid="true"] {
+    border-color: #ff6b8a;
+    box-shadow: 0 0 0 4px rgba(255,61,139,0.12);
+  }
+  .field-shake {
+    animation: shake 480ms cubic-bezier(0.36, 0.07, 0.19, 0.97);
+  }
+
+  /* Loading spinner used inline in buttons. Pure CSS, GPU-only. */
+  .spinner {
+    display: inline-block;
+    width: 1.05em;
+    height: 1.05em;
+    border-radius: 9999px;
+    border: 2px solid currentColor;
+    border-right-color: transparent;
+    animation: spin 720ms linear infinite;
+    will-change: transform;
+  }
+
+  /* Animated check icon — paired with stroke-dasharray on the
+     <path> in JSX. Stroke draws over 520ms after success. */
+  .check-icon path {
+    stroke-dasharray: 28;
+    stroke-dashoffset: 28;
+    animation: check-draw 520ms var(--ease-out-expo) forwards;
+  }
+
+  /* Mobile sheet entrance — fade + slide. Items inside stagger
+     via per-child --rise-delay using .animate-rise-in. */
+  @keyframes sheet-in {
+    from {
+      opacity: 0;
+      transform: translate3d(0, -16px, 0);
+    }
+    to {
+      opacity: 1;
+      transform: translate3d(0, 0, 0);
+    }
+  }
+  .animate-sheet-in {
+    animation: sheet-in 320ms var(--ease-out-expo) both;
+  }
+
+  /* Scroll reveal primitive — paired with <Reveal>. Punchier
+     than before: longer travel, slight scale, expo curve. */
+  .reveal {
+    opacity: 0;
+    transform: translate3d(0, 32px, 0);
+    transition:
+      opacity 900ms var(--ease-out-expo) var(--reveal-delay, 0ms),
+      transform 900ms var(--ease-out-expo) var(--reveal-delay, 0ms);
+    will-change: opacity, transform;
+  }
+  .reveal.is-visible {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+
+  /* Service card lift, amplified: brighter border, light glow,
+     accent bar grows wider, arrow translates further. */
+  .card-lift {
+    position: relative;
+    transition:
+      transform 420ms var(--ease-out-expo),
+      border-color 420ms var(--ease-out-expo),
+      background-color 420ms var(--ease-out-expo),
+      box-shadow 420ms var(--ease-out-expo);
+    will-change: transform;
+  }
+  .card-lift:hover {
+    transform: translate3d(0, -6px, 0);
+    border-color: var(--border-strong);
+    background-color: var(--bg-card-2);
+    box-shadow:
+      0 30px 80px -30px rgba(11,255,194,0.22),
+      0 18px 48px -20px rgba(139,123,255,0.18);
+  }
+  .card-lift .card-accent-bar {
+    transition: width 520ms var(--ease-out-expo);
+  }
+  .card-lift:hover .card-accent-bar {
+    width: 7rem !important;
+  }
+  .card-lift .card-arrow {
+    display: inline-block;
+    transition: transform 360ms var(--ease-out-expo);
+  }
+  .card-lift:hover .card-arrow {
+    transform: translate3d(8px, 0, 0);
+  }
+
+  /* Process row with accent gutter that fills on hover. */
+  .row-sweep {
+    position: relative;
+    overflow: hidden;
+    transition: background-color 420ms var(--ease-out-expo);
+  }
+  .row-sweep::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(90deg, var(--accent-muted), transparent 40%);
+    transform: translate3d(-100%, 0, 0);
+    transition: transform 700ms var(--ease-out-expo);
+    pointer-events: none;
+  }
+  .row-sweep:hover::before {
+    transform: translate3d(0, 0, 0);
+  }
+
+  /* Primary CTA shimmer — a soft diagonal sheen sweeps once on
+     hover. Pure decoration; doesn't shift layout. */
+  .btn-shimmer {
+    position: relative;
+    overflow: hidden;
+    isolation: isolate;
+  }
+  .btn-shimmer::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(110deg, transparent 30%, rgba(255,255,255,0.45) 50%, transparent 70%);
+    transform: translate3d(-120%, 0, 0);
+    transition: transform 800ms var(--ease-out-expo);
+    pointer-events: none;
+    mix-blend-mode: overlay;
+  }
+  .btn-shimmer:hover::after {
+    transform: translate3d(120%, 0, 0);
+  }
+
+  /* Animated underline for nav links. */
+  .nav-underline {
+    position: relative;
+  }
+  .nav-underline::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: -6px;
+    height: 2px;
+    background: var(--accent);
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 360ms var(--ease-out-expo);
+  }
+  .nav-underline:hover::after,
+  .nav-underline[data-active="true"]::after {
+    transform: scaleX(1);
+  }
+
+  /* Section divider with brand sweep — used between sections
+     instead of plain hairlines. */
+  .divider-sweep {
+    height: 1px;
+    background: linear-gradient(90deg, transparent 0%, var(--border-strong) 25%, var(--accent) 50%, var(--accent-2) 70%, transparent 100%);
+    background-size: 200% 100%;
+    animation: gradient-sweep 12s linear infinite;
+    opacity: 0.55;
   }
 }
 
@@ -159,5 +581,18 @@
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
+  }
+
+  .animate-rise-in,
+  .reveal,
+  .text-reveal-inner,
+  .animate-sheet-in {
+    opacity: 1 !important;
+    transform: none !important;
+    animation: none !important;
+  }
+  .check-icon path {
+    stroke-dashoffset: 0 !important;
+    animation: none !important;
   }
 }

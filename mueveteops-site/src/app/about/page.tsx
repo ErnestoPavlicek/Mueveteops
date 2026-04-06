@@ -1,3 +1,4 @@
+import Image from "next/image";
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
 import { SectionLabel } from "@/components/SectionLabel";
@@ -42,10 +43,15 @@ export default function AboutPage() {
 
       {/* Founder Section */}
       <section className="flex flex-col lg:flex-row gap-10 lg:gap-12 px-5 sm:px-8 lg:px-16 py-14 lg:py-20">
-        <div
-          className="w-full max-w-[480px] mx-auto lg:mx-0 aspect-[480/450] rounded-xl border border-[var(--border)] bg-cover bg-center lg:flex-shrink-0"
-          style={{ backgroundImage: "url(/images/founder.webp)" }}
-        />
+        <div className="relative w-full max-w-[480px] mx-auto lg:mx-0 aspect-[480/450] rounded-xl border border-[var(--border)] overflow-hidden lg:flex-shrink-0">
+          <Image
+            src="/images/founder.webp"
+            alt="Ernesto, founder of MueveOps"
+            fill
+            sizes="(max-width: 1024px) 100vw, 480px"
+            className="object-cover"
+          />
+        </div>
         <div className="flex-1 flex flex-col gap-6 justify-center">
           <h2 className="text-display-2 text-[var(--text-primary)]">
             Built by Someone Who Ships

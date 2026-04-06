@@ -1,3 +1,4 @@
+import Image from "next/image";
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
 import { SectionLabel } from "@/components/SectionLabel";
@@ -49,16 +50,24 @@ export default function AIAuditPage() {
       <Navbar />
 
       {/* Hero */}
-      <section
-        className="relative min-h-[clamp(36rem,85svh,49rem)] flex items-center py-16 lg:py-0"
-        style={{
-          backgroundImage:
-            "linear-gradient(180deg, rgba(10,10,15,0.9) 0%, rgba(10,10,15,0.8) 40%, rgba(10,10,15,0.6) 70%, rgba(10,10,15,0.38) 100%), url(/images/audit-hero.webp)",
-          backgroundSize: "cover",
-          backgroundPosition: "center",
-        }}
-      >
-        <div className="px-5 sm:px-8 lg:px-16 max-w-[720px] flex flex-col gap-6 lg:gap-8">
+      <section className="relative min-h-[clamp(36rem,85svh,49rem)] flex items-center py-16 lg:py-0 overflow-hidden">
+        <Image
+          src="/images/audit-hero.webp"
+          alt=""
+          fill
+          priority
+          sizes="100vw"
+          className="object-cover -z-10"
+        />
+        <div
+          aria-hidden
+          className="absolute inset-0 -z-10"
+          style={{
+            backgroundImage:
+              "linear-gradient(180deg, rgba(10,10,15,0.9) 0%, rgba(10,10,15,0.8) 40%, rgba(10,10,15,0.6) 70%, rgba(10,10,15,0.38) 100%)",
+          }}
+        />
+        <div className="relative px-5 sm:px-8 lg:px-16 max-w-[720px] flex flex-col gap-6 lg:gap-8">
           <h1 className="text-display-1 text-[var(--text-primary)]">
             Free AI Audit
           </h1>
@@ -66,10 +75,11 @@ export default function AIAuditPage() {
             Discover where AI can save you time, reduce costs, and improve
             quality — with zero fluff.
           </p>
-          <BookCallButton
-            text="Book Your Free Audit"
-            className="self-start bg-[var(--accent)] text-[var(--bg)] font-semibold text-base px-8 py-4 rounded-xl hover:opacity-90 transition-opacity"
-          />
+          <div className="self-start">
+            <BookCallButton variant="primary" size="lg">
+              Book Your Free Audit
+            </BookCallButton>
+          </div>
         </div>
       </section>
 
@@ -116,10 +126,15 @@ export default function AIAuditPage() {
               plan built around your business goals.
             </p>
           </div>
-          <div
-            className="w-full max-w-[500px] mx-auto lg:mx-0 aspect-[5/4] lg:h-[400px] rounded-xl border border-[var(--border)] bg-cover bg-center lg:flex-shrink-0"
-            style={{ backgroundImage: "url(/images/audit-why.webp)" }}
-          />
+          <div className="relative w-full max-w-[500px] mx-auto lg:mx-0 aspect-[5/4] lg:h-[400px] rounded-xl border border-[var(--border)] overflow-hidden lg:flex-shrink-0">
+            <Image
+              src="/images/audit-why.webp"
+              alt="A clear AI audit cuts through the noise"
+              fill
+              sizes="(max-width: 1024px) 100vw, 500px"
+              className="object-cover"
+            />
+          </div>
         </div>
       </section>
 

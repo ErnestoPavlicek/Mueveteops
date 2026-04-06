@@ -1,3 +1,4 @@
+import Image from "next/image";
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
 import { CTASection } from "@/components/CTASection";
@@ -81,10 +82,15 @@ export default function ServicesPage() {
             ongoing optimization. No fluff, no hype, just results.
           </p>
         </div>
-        <div
-          className="w-full lg:flex-1 aspect-[4/3] lg:aspect-auto lg:h-[420px] rounded-xl border border-[var(--border)] bg-cover bg-center"
-          style={{ backgroundImage: "url(/images/service-hero.webp)" }}
-        />
+        <div className="relative w-full lg:flex-1 aspect-[4/3] lg:aspect-auto lg:h-[420px] rounded-xl border border-[var(--border)] overflow-hidden">
+          <Image
+            src="/images/service-hero.webp"
+            alt="MueveOps services overview"
+            fill
+            sizes="(max-width: 1024px) 100vw, 50vw"
+            className="object-cover"
+          />
+        </div>
       </section>
 
       {/* Service Sections */}
@@ -97,10 +103,15 @@ export default function ServicesPage() {
               imageLeft ? "lg:flex-row" : "lg:flex-row-reverse"
             } items-center gap-10 lg:gap-12 px-5 sm:px-8 lg:px-16 py-14 lg:py-20 border-b border-[var(--divider)]`}
           >
-            <div
-              className="w-full lg:flex-1 aspect-[4/3] lg:aspect-auto lg:h-[380px] rounded-xl border border-[var(--border)] bg-cover bg-center"
-              style={{ backgroundImage: `url(${service.image})` }}
-            />
+            <div className="relative w-full lg:flex-1 aspect-[4/3] lg:aspect-auto lg:h-[380px] rounded-xl border border-[var(--border)] overflow-hidden">
+              <Image
+                src={service.image}
+                alt={service.title}
+                fill
+                sizes="(max-width: 1024px) 100vw, 50vw"
+                className="object-cover"
+              />
+            </div>
             <div className="flex-1 flex flex-col gap-6">
               <span className="text-eyebrow tabular text-[var(--accent)]">
                 {service.num}

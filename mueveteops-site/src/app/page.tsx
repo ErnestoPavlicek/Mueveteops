@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
@@ -72,16 +73,24 @@ export default function HomePage() {
       <Navbar />
 
       {/* Hero Section */}
-      <section
-        className="relative min-h-[clamp(34rem,80svh,44rem)] flex items-center py-16 lg:py-0"
-        style={{
-          backgroundImage:
-            "linear-gradient(180deg, rgba(10,10,15,0.85) 0%, rgba(10,10,15,0.55) 50%, rgba(10,10,15,0.18) 100%), url(/images/hero-bg.webp)",
-          backgroundSize: "cover",
-          backgroundPosition: "center",
-        }}
-      >
-        <div className="px-5 sm:px-8 lg:px-16 max-w-[720px] flex flex-col gap-6 lg:gap-8">
+      <section className="relative min-h-[clamp(34rem,80svh,44rem)] flex items-center py-16 lg:py-0 overflow-hidden">
+        <Image
+          src="/images/hero-bg.webp"
+          alt=""
+          fill
+          priority
+          sizes="100vw"
+          className="object-cover -z-10"
+        />
+        <div
+          aria-hidden
+          className="absolute inset-0 -z-10"
+          style={{
+            backgroundImage:
+              "linear-gradient(180deg, rgba(10,10,15,0.85) 0%, rgba(10,10,15,0.55) 50%, rgba(10,10,15,0.18) 100%)",
+          }}
+        />
+        <div className="relative px-5 sm:px-8 lg:px-16 max-w-[720px] flex flex-col gap-6 lg:gap-8">
           <h1 className="text-display-1 text-[var(--text-primary)]">
             AI That Drives{" "}
             <span

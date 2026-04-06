@@ -1,3 +1,4 @@
+import Image from "next/image";
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
 import { ContactForm } from "@/components/ContactForm";
@@ -11,7 +12,7 @@ export default function ContactPage() {
       <div className="h-px w-full bg-[var(--divider)]" />
 
       {/* Hero */}
-      <section className="flex flex-col items-center px-5 sm:px-8 lg:px-20 pt-16 lg:pt-[100px] pb-14 lg:pb-20 gap-5">
+      <section className="flex flex-col items-center px-5 sm:px-8 lg:px-16 pt-16 lg:pt-[100px] pb-14 lg:pb-20 gap-5">
         <span className="text-eyebrow text-[var(--text-secondary)]">
           06 — Contact
         </span>
@@ -27,7 +28,7 @@ export default function ContactPage() {
       <div className="h-px w-full bg-[var(--divider)]" />
 
       {/* Contact Split */}
-      <section className="flex flex-col lg:flex-row gap-10 lg:gap-[60px] px-5 sm:px-8 lg:px-20 py-14 lg:py-20">
+      <section className="flex flex-col lg:flex-row gap-10 lg:gap-[60px] px-5 sm:px-8 lg:px-16 py-14 lg:py-20">
         {/* Form */}
         <div className="flex-1 min-w-0">
           <ContactForm />
@@ -35,14 +36,15 @@ export default function ContactPage() {
 
         {/* Info */}
         <div className="flex-1 min-w-0 flex flex-col gap-10">
-          <div
-            className="aspect-[4/3] lg:h-[340px] lg:aspect-auto rounded-xl border border-[var(--border)] bg-cover bg-center"
-            style={{
-              backgroundImage: "url(/images/contact-workspace.webp)",
-            }}
-            role="img"
-            aria-label="MueveOps workspace"
-          />
+          <div className="relative aspect-[4/3] lg:h-[340px] lg:aspect-auto rounded-xl border border-[var(--border)] overflow-hidden">
+            <Image
+              src="/images/contact-workspace.webp"
+              alt="MueveOps workspace"
+              fill
+              sizes="(max-width: 1024px) 100vw, 50vw"
+              className="object-cover"
+            />
+          </div>
           <div className="flex flex-col gap-7">
             <h3 className="text-heading text-[var(--text-primary)]">
               Get in touch directly
@@ -85,26 +87,25 @@ export default function ContactPage() {
 
             <div className="h-px bg-[var(--divider)]" />
 
-            <div className="flex flex-col gap-4">
+            <div className="flex flex-col gap-4 items-start">
               <BookCallButton
-                className="self-start flex items-center gap-2.5 border border-[var(--accent)] text-[var(--accent)] font-semibold text-base px-7 py-3.5 rounded-md hover:bg-[var(--accent-muted)] transition-colors"
-                text={
-                  <>
-                    <svg
-                      className="w-4 h-4 flex-shrink-0"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth={2}
-                      viewBox="0 0 24 24"
-                      aria-hidden="true"
-                    >
-                      <rect width="18" height="18" x="3" y="4" rx="2" />
-                      <path d="M16 2v4M8 2v4M3 10h18" />
-                    </svg>
-                    Schedule a Meeting
-                  </>
-                }
-              />
+                variant="outline-accent"
+                size="md"
+                className="inline-flex items-center gap-2.5"
+              >
+                <svg
+                  className="w-4 h-4 flex-shrink-0"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth={2}
+                  viewBox="0 0 24 24"
+                  aria-hidden="true"
+                >
+                  <rect width="18" height="18" x="3" y="4" rx="2" />
+                  <path d="M16 2v4M8 2v4M3 10h18" />
+                </svg>
+                Schedule a Meeting
+              </BookCallButton>
             </div>
 
           </div>

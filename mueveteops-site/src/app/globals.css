@@ -1,0 +1,163 @@
+@import "tailwindcss";
+
+:root {
+  --bg: #0A0A0F;
+  --bg-card: #1A1A2E;
+  --bg-input: rgba(255, 255, 255, 0.024);
+  --accent: #0BFFC2;
+  --accent-muted: rgba(11, 255, 194, 0.1);
+  --accent-2: #7C6AFF;
+  --accent-2-muted: rgba(124, 106, 255, 0.12);
+  --gradient-brand: linear-gradient(135deg, #0BFFC2 0%, #7C6AFF 100%);
+  --text-primary: #F0F0F0;
+  --text-secondary: rgba(255, 255, 255, 0.35);
+  --border: rgba(255, 255, 255, 0.1);
+  --divider: rgba(255, 255, 255, 0.08);
+
+  /* ─── Type system ─────────────────────────────────────────────
+     Semantic tokens. Display sizes are fluid for marketing pages;
+     body and meta stay fixed. Tracking is tight on display
+     (engineered/Linear feel) and open on the mono eyebrow.
+     Pin-point spec from brand context: 72 / 48 / 22 hierarchy.
+  */
+  --font-display: var(--font-manrope), "Manrope", system-ui, sans-serif;
+  --font-body: var(--font-manrope), "Manrope", system-ui, sans-serif;
+  --font-mono: var(--font-jetbrains-mono), "JetBrains Mono", ui-monospace, monospace;
+}
+
+@layer base {
+  html, body {
+    height: 100%;
+  }
+
+  html {
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+  }
+
+  body {
+    /* Prevent horizontal scroll from any unintended overflow */
+    overflow-x: hidden;
+  }
+
+  /* Long words/URLs/emails shouldn't blow out narrow containers */
+  h1, h2, h3, h4, h5, h6, p, a, span, li {
+    overflow-wrap: break-word;
+    word-wrap: break-word;
+  }
+
+  /* Visible focus for keyboard users */
+  :focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
+
+  .font-heading {
+    font-family: var(--font-display);
+  }
+
+  .font-body {
+    font-family: var(--font-body);
+  }
+
+  .font-mono {
+    font-family: var(--font-mono);
+  }
+
+  body {
+    font-family: var(--font-body);
+    font-feature-settings: "kern", "liga", "calt";
+    font-kerning: normal;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+}
+
+/* ─── Type system utilities ────────────────────────────────────
+   Use these instead of arbitrary text-[...] sizes. Same role →
+   same token across the whole site.
+*/
+@layer components {
+  .text-display-1 {
+    font-family: var(--font-display);
+    font-size: clamp(2.5rem, 0.875rem + 4.5vw, 4.5rem);
+    line-height: 1.02;
+    letter-spacing: -0.025em;
+    font-weight: 700;
+  }
+
+  .text-display-2 {
+    font-family: var(--font-display);
+    font-size: clamp(1.875rem, 1.25rem + 1.75vw, 3rem);
+    line-height: 1.05;
+    letter-spacing: -0.022em;
+    font-weight: 700;
+  }
+
+  .text-display-3 {
+    font-family: var(--font-display);
+    font-size: clamp(1.75rem, 1.5rem + 0.625vw, 2.25rem);
+    line-height: 1.1;
+    letter-spacing: -0.018em;
+    font-weight: 700;
+  }
+
+  .text-heading {
+    font-family: var(--font-display);
+    font-size: 1.375rem; /* 22px — brand spec */
+    line-height: 1.2;
+    letter-spacing: -0.012em;
+    font-weight: 700;
+  }
+
+  .text-body-lg {
+    font-family: var(--font-body);
+    font-size: 1.125rem; /* 18px */
+    line-height: 1.6;
+    font-weight: 400;
+  }
+
+  .text-body {
+    font-family: var(--font-body);
+    font-size: 1rem; /* 16px */
+    line-height: 1.6;
+    font-weight: 400;
+  }
+
+  .text-meta {
+    font-family: var(--font-body);
+    font-size: 0.875rem; /* 14px */
+    line-height: 1.5;
+    font-weight: 500;
+  }
+
+  /* Mono small caps eyebrow — the engineered signal label */
+  .text-eyebrow {
+    font-family: var(--font-mono);
+    font-size: 0.75rem; /* 12px */
+    line-height: 1.4;
+    letter-spacing: 0.16em;
+    font-weight: 500;
+    text-transform: uppercase;
+  }
+
+  /* Tabular numerals for stat displays — every digit same width.
+     Pair with display tokens on metric numbers. */
+  .tabular {
+    font-variant-numeric: tabular-nums;
+    font-feature-settings: "tnum", "kern";
+  }
+}
+
+/* Respect users who prefer reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

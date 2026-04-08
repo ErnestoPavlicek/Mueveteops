@@ -2,9 +2,13 @@ import type { Metadata, Viewport } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://www.mueveops.com"),
   title: "MueveOps - AI Solutions Agency",
   description:
     "We build automations, AI agents, and content pipelines that plug into your existing tools and start saving your team hours in week one.",
+  alternates: {
+    canonical: "/",
+  },
 };
 
 export const viewport: Viewport = {

@@ -1,7 +1,14 @@
+import type { Metadata } from "next";
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
 import { BookCallButton } from "@/components/BookCallButton";
 import { SectionLabel } from "@/components/SectionLabel";
+
+export const metadata: Metadata = {
+  alternates: {
+    canonical: "/case-studies",
+  },
+};
 
 export default function CaseStudiesPage() {
   return (

@@ -1,9 +1,16 @@
+import type { Metadata } from "next";
 import Image from "next/image";
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
 import { SectionLabel } from "@/components/SectionLabel";
 import { CTASection } from "@/components/CTASection";
 import { Reveal } from "@/components/Reveal";
+
+export const metadata: Metadata = {
+  alternates: {
+    canonical: "/about",
+  },
+};
 
 const values = [
   {

@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Image from "next/image";
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
@@ -5,6 +6,12 @@ import { SectionLabel } from "@/components/SectionLabel";
 import { CTASection } from "@/components/CTASection";
 import { BookCallButton } from "@/components/BookCallButton";
 import { Reveal } from "@/components/Reveal";
+
+export const metadata: Metadata = {
+  alternates: {
+    canonical: "/ai-audit",
+  },
+};
 
 const cards = [
   {

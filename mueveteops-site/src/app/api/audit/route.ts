@@ -111,15 +111,18 @@ export async function POST(request: Request) {
     );
   }
 
-  // 1. Append to Airtable CRM
+  // 1. Append to Airtable CRM — fatal if it fails
   try {
     await appendToAirtable(data);
   } catch (err) {
     console.error("[audit] Failed to append to Airtable:", err);
-    // Non-fatal — continue with email notification
+    return Response.json(
+      { error: "Something went wrong saving your request. Please try again." },
+      { status: 500 },
+    );
   }
 
-  // 2. Send notification email to founder
+  // 2. Send emails (best-effort — don't break UX if these fail)
   const gmailUser = process.env.GMAIL_USER;
   const gmailPass = process.env.GMAIL_APP_PASSWORD;
 
@@ -129,72 +132,164 @@ export async function POST(request: Request) {
       auth: { user: gmailUser, pass: gmailPass },
     });
 
-    const subject = `New AI Audit request: ${data.company} — ${data.name}`;
+    const firstName = escapeHtml(data.name.split(" ")[0] || data.name);
+    const companyEsc = escapeHtml(data.company);
+    const industryEsc = escapeHtml(data.industry);
+    const websiteEsc = escapeHtml(data.website);
+    const timestamp = new Date().toISOString();
 
-    const notificationText = [
-      `Name:      ${data.name}`,
-      `Email:     ${data.email}`,
-      `Company:   ${data.company}`,
-      `Website:   ${data.website}`,
-      `Team Size: ${data.teamSize}`,
-      `Industry:  ${data.industry}`,
-      `Pain Point: ${data.painPoint || "—"}`,
-    ].join("\n");
-
-    const notificationHtml = `
-      <div style="font-family: -apple-system, system-ui, sans-serif; color: #0D1117; line-height: 1.6;">
-        <h2 style="margin: 0 0 16px;">New AI Audit Request</h2>
-        <p style="margin: 4px 0;"><strong>Name:</strong> ${escapeHtml(data.name)}</p>
-        <p style="margin: 4px 0;"><strong>Email:</strong> <a href="mailto:${escapeHtml(data.email)}">${escapeHtml(data.email)}</a></p>
-        <p style="margin: 4px 0;"><strong>Company:</strong> ${escapeHtml(data.company)}</p>
-        <p style="margin: 4px 0;"><strong>Website:</strong> <a href="${escapeHtml(data.website)}">${escapeHtml(data.website)}</a></p>
-        <p style="margin: 4px 0;"><strong>Team Size:</strong> ${escapeHtml(data.teamSize)}</p>
-        <p style="margin: 4px 0;"><strong>Industry:</strong> ${escapeHtml(data.industry)}</p>
-        ${data.painPoint ? `<p style="margin: 16px 0 4px;"><strong>Pain Point:</strong></p><pre style="white-space: pre-wrap; font-family: inherit; background: #f5f5f5; padding: 12px; border-radius: 6px;">${escapeHtml(data.painPoint)}</pre>` : ""}
-      </div>
-    `;
+    // --- Email 1: Branded confirmation to the lead ---
+    const confirmHtml = `<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Your AI Audit is being prepared</title></head>
+<body style="margin:0;padding:0;background-color:#0A0A0F;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;">
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background-color:#0A0A0F;">
+  <tr><td align="center" style="padding:40px 16px;">
+    <table role="presentation" width="600" cellpadding="0" cellspacing="0" style="max-width:600px;width:100%;">
+      <!-- Top accent line -->
+      <tr><td style="height:3px;background:linear-gradient(90deg,#0BFFC2,#0BFFC2 60%,transparent);border-radius:16px 16px 0 0;font-size:0;line-height:0;">&nbsp;</td></tr>
+      <!-- Main card -->
+      <tr><td style="background-color:#1A1A2E;border:1px solid rgba(255,255,255,0.08);border-top:none;border-radius:0 0 16px 16px;padding:40px;">
+        <!-- Logo -->
+        <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+          <tr><td align="center" style="padding-bottom:8px;">
+            <span style="font-size:18px;font-weight:700;color:#FFFFFF;letter-spacing:4px;text-transform:uppercase;">MUEVEOPS</span>
+          </td></tr>
+          <tr><td align="center" style="padding-bottom:32px;">
+            <div style="width:40px;height:2px;background-color:#0BFFC2;margin:0 auto;"></div>
+          </td></tr>
+        </table>
+        <!-- Greeting -->
+        <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+          <tr><td style="color:#EEEEF6;font-size:20px;font-weight:600;padding-bottom:16px;">
+            Hi ${firstName},
+          </td></tr>
+          <tr><td style="color:#A8A8C0;font-size:15px;line-height:1.7;padding-bottom:28px;">
+            Thanks for requesting an AI Audit for <strong style="color:#EEEEF6;">${companyEsc}</strong>. We&#39;re analyzing your website and cross-referencing with <strong style="color:#EEEEF6;">${industryEsc}</strong> automation benchmarks.
+          </td></tr>
+        </table>
+        <!-- What they'll receive -->
+        <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background-color:#12122A;border-radius:12px;margin-bottom:28px;">
+          <tr><td style="padding:24px 28px;">
+            <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+              <tr><td style="color:#0BFFC2;font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;padding-bottom:16px;">YOUR REPORT INCLUDES</td></tr>
+              <tr><td style="color:#A8A8C0;font-size:14px;line-height:2.2;">
+                &#128269; Website &amp; tech stack analysis<br>
+                &#9889; Top 3-5 automation opportunities for your business<br>
+                &#128202; Estimated time savings per automation<br>
+                &#128506;&#65039; Recommended implementation roadmap
+              </td></tr>
+            </table>
+          </td></tr>
+        </table>
+        <!-- Timeline callout -->
+        <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:28px;">
+          <tr><td style="background-color:rgba(11,255,194,0.08);border-left:3px solid #0BFFC2;border-radius:0 8px 8px 0;padding:16px 20px;">
+            <span style="color:#EEEEF6;font-size:14px;font-weight:500;">Your personalized report will arrive within 24 hours.</span>
+          </td></tr>
+        </table>
+        <!-- CTA Button (bulletproof) -->
+        <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:8px;">
+          <tr><td align="center">
+            <table role="presentation" cellpadding="0" cellspacing="0" width="100%">
+              <tr>
+                <td align="center" bgcolor="#0BFFC2" style="background-color:#0BFFC2;border-radius:10px;">
+                  <a href="https://calendly.com/mueveops" target="_blank" style="display:block;padding:16px 24px;font-size:15px;font-weight:700;color:#0A0A0F;text-decoration:none;text-align:center;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;">Book a Strategy Call &#8594;</a>
+                </td>
+              </tr>
+            </table>
+          </td></tr>
+          <tr><td align="center" style="padding-top:10px;">
+            <span style="color:#7B7B99;font-size:12px;">15 minutes &middot; No commitment &middot; Walk through your findings together</span>
+          </td></tr>
+        </table>
+        <!-- Signature -->
+        <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin-top:32px;border-top:1px solid rgba(255,255,255,0.06);padding-top:24px;">
+          <tr><td style="color:#EEEEF6;font-size:14px;font-weight:600;padding-bottom:4px;">Ernesto Pavlicek</td></tr>
+          <tr><td style="color:#A8A8C0;font-size:13px;line-height:1.8;">
+            MueveOps &mdash; AI Solutions Agency<br>
+            <a href="mailto:ernst@mueveops.com" style="color:#0BFFC2;text-decoration:none;">ernst@mueveops.com</a> | <a href="https://mueveops.com" style="color:#0BFFC2;text-decoration:none;">mueveops.com</a>
+          </td></tr>
+        </table>
+      </td></tr>
+    </table>
+    <!-- Footer -->
+    <table role="presentation" width="600" cellpadding="0" cellspacing="0" style="max-width:600px;width:100%;margin-top:24px;">
+      <tr><td align="center" style="color:#7B7B99;font-size:11px;line-height:1.5;">
+        Your data is processed securely and never used for AI training.<br>&copy; 2026 MueveOps
+      </td></tr>
+    </table>
+  </td></tr>
+</table>
+</body>
+</html>`;
 
     try {
-      await transporter.sendMail({
-        from: `"MueveOps AI Audit" <${gmailUser}>`,
-        to: FOUNDER_INBOX,
-        replyTo: data.email,
-        subject,
-        text: notificationText,
-        html: notificationHtml,
-      });
-    } catch (err) {
-      console.error("[audit] Failed to send notification email:", err);
-    }
-
-    // 3. Best-effort confirmation to the submitter
-    try {
-      const confirmHtml = `
-        <div style="font-family: -apple-system, system-ui, sans-serif; color: #0D1117; line-height: 1.6;">
-          <p>Hi ${escapeHtml(data.name.split(" ")[0] || data.name)},</p>
-          <p>Thanks for requesting an AI Audit from <strong>MueveOps</strong>.</p>
-          <p>We're analyzing <strong>${escapeHtml(data.website)}</strong> and cross-referencing with ${escapeHtml(data.industry)} automation benchmarks to build your personalized report.</p>
-          <p>Your audit will be delivered to this email within a few hours. It will include:</p>
-          <ul>
-            <li>Website & tech stack analysis</li>
-            <li>Top 3-5 automation opportunities specific to your business</li>
-            <li>Estimated time savings per automation</li>
-            <li>Recommended implementation roadmap</li>
-          </ul>
-          <p>In the meantime, feel free to <a href="https://calendly.com">book a call</a> to walk through the findings together.</p>
-          <p>— The MueveOps team</p>
-        </div>
-      `;
-
       await transporter.sendMail({
         from: `"MueveOps" <${gmailUser}>`,
         to: data.email,
         replyTo: FOUNDER_INBOX,
-        subject: "Your AI Audit is being prepared — MueveOps",
+        subject: `Your AI Audit is being prepared — ${data.company}`,
         html: confirmHtml,
       });
     } catch (err) {
-      console.error("[audit] Failed to send confirmation email (non-fatal):", err);
+      console.error("[audit] Failed to send confirmation email:", err);
+    }
+
+    // --- Email 2: Notification to founder ---
+    const notificationHtml = `<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="utf-8"></head>
+<body style="margin:0;padding:0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f9f9f9;">
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#f9f9f9;">
+  <tr><td align="center" style="padding:32px 16px;">
+    <table role="presentation" width="560" cellpadding="0" cellspacing="0" style="max-width:560px;width:100%;background:#ffffff;border-radius:12px;border:1px solid #e5e5e5;">
+      <tr><td style="padding:32px;">
+        <h2 style="margin:0 0 24px;font-size:18px;color:#0D1117;">&#x1F7E2; New AI Audit Lead</h2>
+        <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="font-size:14px;color:#333;">
+          <tr><td style="padding:8px 0;border-bottom:1px solid #f0f0f0;font-weight:600;width:120px;color:#666;">Name</td><td style="padding:8px 0;border-bottom:1px solid #f0f0f0;">${escapeHtml(data.name)}</td></tr>
+          <tr><td style="padding:8px 0;border-bottom:1px solid #f0f0f0;font-weight:600;color:#666;">Email</td><td style="padding:8px 0;border-bottom:1px solid #f0f0f0;"><a href="mailto:${escapeHtml(data.email)}" style="color:#0066cc;">${escapeHtml(data.email)}</a></td></tr>
+          <tr><td style="padding:8px 0;border-bottom:1px solid #f0f0f0;font-weight:600;color:#666;">Company</td><td style="padding:8px 0;border-bottom:1px solid #f0f0f0;">${companyEsc}</td></tr>
+          <tr><td style="padding:8px 0;border-bottom:1px solid #f0f0f0;font-weight:600;color:#666;">Website</td><td style="padding:8px 0;border-bottom:1px solid #f0f0f0;"><a href="${websiteEsc}" style="color:#0066cc;">${websiteEsc}</a></td></tr>
+          <tr><td style="padding:8px 0;border-bottom:1px solid #f0f0f0;font-weight:600;color:#666;">Industry</td><td style="padding:8px 0;border-bottom:1px solid #f0f0f0;">${industryEsc}</td></tr>
+          <tr><td style="padding:8px 0;border-bottom:1px solid #f0f0f0;font-weight:600;color:#666;">Team Size</td><td style="padding:8px 0;border-bottom:1px solid #f0f0f0;">${escapeHtml(data.teamSize)}</td></tr>
+          <tr><td style="padding:8px 0;border-bottom:1px solid #f0f0f0;font-weight:600;color:#666;">Pain Point</td><td style="padding:8px 0;border-bottom:1px solid #f0f0f0;">${escapeHtml(data.painPoint || "\u2014")}</td></tr>
+          <tr><td style="padding:8px 0;font-weight:600;color:#666;">Submitted</td><td style="padding:8px 0;">${timestamp}</td></tr>
+        </table>
+        <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin-top:24px;">
+          <tr><td align="center">
+            <a href="https://airtable.com/appvO7XwGOwrdoYZR" target="_blank" style="display:inline-block;padding:10px 24px;background:#0066cc;color:#ffffff;text-decoration:none;border-radius:6px;font-size:13px;font-weight:600;">Open in Airtable &rarr;</a>
+          </td></tr>
+        </table>
+      </td></tr>
+    </table>
+  </td></tr>
+</table>
+</body>
+</html>`;
+
+    try {
+      await transporter.sendMail({
+        from: `"MueveOps Leads" <${gmailUser}>`,
+        to: FOUNDER_INBOX,
+        replyTo: data.email,
+        subject: `\u{1F7E2} New AI Audit Lead: ${data.company}`,
+        text: [
+          `Name: ${data.name}`,
+          `Email: ${data.email}`,
+          `Company: ${data.company}`,
+          `Website: ${data.website}`,
+          `Industry: ${data.industry}`,
+          `Team Size: ${data.teamSize}`,
+          `Pain Point: ${data.painPoint || "\u2014"}`,
+          `Submitted: ${timestamp}`,
+          ``,
+          `Airtable: https://airtable.com/appvO7XwGOwrdoYZR`,
+        ].join("\n"),
+        html: notificationHtml,
+      });
+    } catch (err) {
+      console.error("[audit] Failed to send notification email:", err);
     }
   } else {
     console.warn("[audit] GMAIL_USER or GMAIL_APP_PASSWORD not set — skipping emails");

@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -54,15 +55,18 @@ export function Navbar() {
       >
         <Link
           href="/"
-          className="group inline-flex items-center gap-3"
+          className="group inline-flex items-center gap-2.5"
         >
-          <span
-            aria-hidden
-            className="inline-block w-3 h-3 rounded-full"
-            style={{ background: "var(--accent)", boxShadow: "0 0 24px var(--accent-glow)" }}
+          <Image
+            src="/images/logo-nav.png"
+            alt="MueveOps logo"
+            width={40}
+            height={40}
+            className="w-10 h-10"
+            priority
           />
-          <span className="font-heading text-2xl font-black tracking-[-0.02em] text-[var(--text-primary)]">
-            mueve<span className="text-[var(--accent)]">ops</span>
+          <span className="font-heading text-2xl font-bold tracking-[-0.02em] text-[var(--text-primary)]">
+            Mueve<span className="text-[var(--accent)]">Ops</span>
           </span>
         </Link>
 

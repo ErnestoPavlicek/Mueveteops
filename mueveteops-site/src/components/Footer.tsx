@@ -19,8 +19,8 @@ export function Footer() {
             fontSize: "clamp(4rem, 18vw, 16rem)",
           }}
         >
-          <span className="text-[var(--text-primary)]">mueve</span>
-          <span className="text-gradient">ops.</span>
+          <span className="text-[var(--text-primary)]">Mueve</span>
+          <span className="text-gradient">Ops.</span>
         </h2>
       </div>
 

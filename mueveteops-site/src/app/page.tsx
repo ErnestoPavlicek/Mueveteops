@@ -201,7 +201,7 @@ export default function HomePage() {
               style={{ "--rise-delay": "380ms" } as CSSVars}
             >
               <Button href="/ai-audit" variant="primary" size="lg">
-                Get a free AI audit
+                Get Your Free AI Audit →
               </Button>
               <BookCallButton variant="outline" size="lg">
                 Book a free call →

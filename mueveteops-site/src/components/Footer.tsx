@@ -35,7 +35,7 @@ export function Footer() {
         <div className="flex flex-col gap-4">
           <span className="text-eyebrow text-[var(--accent-2)]">▸ Navigation</span>
           <div className="flex flex-col gap-3">
-            {["Services", "AI Audit", "About", "Contact"].map((link) => (
+            {["Services", "AI Audit", "Strategy", "About", "Contact"].map((link) => (
               <Link
                 key={link}
                 href={`/${link.toLowerCase().replace(/ /g, "-")}`}

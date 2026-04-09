@@ -128,6 +128,15 @@ export default function ContactPage() {
               </div>
             </div>
 
+            <div className="rounded-xl p-4" style={{ background: "var(--accent-muted)", border: "1px solid rgba(11, 255, 194, 0.15)" }}>
+              <p className="text-sm text-[var(--text-secondary)]">
+                Want to see what&apos;s automatable first?{" "}
+                <a href="/ai-audit" className="text-[var(--accent)] font-bold underline underline-offset-2 hover:opacity-80 transition-opacity">
+                  Try our free AI Audit →
+                </a>
+              </p>
+            </div>
+
             <div className="pt-2">
               <BookCallButton variant="outline-accent" size="lg" className="gap-3">
                 <svg

@@ -561,6 +561,58 @@
     transform: scaleX(1);
   }
 
+  /* ─── Audit funnel animations ─────────────────────────────── */
+  @keyframes progress-fill {
+    from { width: 0%; }
+    to   { width: 100%; }
+  }
+
+  @keyframes cursor-blink {
+    0%, 50% { opacity: 1; }
+    51%, 100% { opacity: 0; }
+  }
+
+  @keyframes orb-pulse {
+    0%, 100% { transform: scale(1); opacity: 0.6; box-shadow: 0 0 40px 10px var(--accent-glow); }
+    50%      { transform: scale(1.15); opacity: 1; box-shadow: 0 0 60px 20px var(--accent-glow); }
+  }
+
+  @keyframes fade-in-up {
+    from { opacity: 0; transform: translate3d(0, 16px, 0); }
+    to   { opacity: 1; transform: translate3d(0, 0, 0); }
+  }
+
+  @keyframes cta-glow {
+    0%, 100% { box-shadow: 0 18px 48px -16px var(--accent-glow), 0 0 0 1px var(--accent); }
+    50%      { box-shadow: 0 18px 64px -12px var(--accent-glow), 0 0 0 1px var(--accent), 0 0 24px 4px var(--accent-muted); }
+  }
+
+  .animate-progress-fill {
+    animation: progress-fill 15.2s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+  }
+
+  .animate-cursor-blink {
+    animation: cursor-blink 1s step-end infinite;
+  }
+
+  .animate-orb-pulse {
+    animation: orb-pulse 2.4s ease-in-out infinite;
+  }
+
+  .animate-fade-in-up {
+    animation: fade-in-up 600ms var(--ease-out-expo) both;
+    animation-delay: var(--fade-delay, 0ms);
+  }
+
+  .animate-cta-glow {
+    animation: cta-glow 2.5s ease-in-out infinite;
+  }
+
+  /* Phase transition container */
+  .phase-enter {
+    animation: fade-in-up 400ms var(--ease-out-expo) both;
+  }
+
   /* Section divider with brand sweep — used between sections
      instead of plain hairlines. */
   .divider-sweep {
@@ -586,7 +638,9 @@
   .animate-rise-in,
   .reveal,
   .text-reveal-inner,
-  .animate-sheet-in {
+  .animate-sheet-in,
+  .animate-fade-in-up,
+  .phase-enter {
     opacity: 1 !important;
     transform: none !important;
     animation: none !important;

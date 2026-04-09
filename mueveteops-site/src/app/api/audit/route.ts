@@ -1,5 +1,4 @@
 import nodemailer from "nodemailer";
-import { google } from "googleapis";
 
 export const runtime = "nodejs";
 
@@ -54,45 +53,46 @@ function escapeHtml(value: string): string {
     .replace(/'/g, "&#39;");
 }
 
-async function appendToSheet(data: AuditPayload): Promise<void> {
-  const serviceEmail = process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL;
-  const privateKey = process.env.GOOGLE_PRIVATE_KEY;
-  const sheetId = process.env.GOOGLE_SHEET_ID;
+async function appendToAirtable(data: AuditPayload): Promise<void> {
+  const token = process.env.AIRTABLE_API_TOKEN;
+  const baseId = process.env.AIRTABLE_BASE_ID;
+  const tableId = process.env.AIRTABLE_TABLE_ID;
 
-  if (!serviceEmail || !privateKey || !sheetId) {
-    console.warn("[audit] Google Sheets env vars not configured — skipping sheet append");
+  if (!token || !baseId || !tableId) {
+    console.warn("[audit] Airtable env vars not configured — skipping CRM append");
     return;
   }
 
-  const auth = new google.auth.JWT({
-    email: serviceEmail,
-    key: privateKey.replace(/\\n/g, "\n"),
-    scopes: ["https://www.googleapis.com/auth/spreadsheets"],
-  });
-
-  const sheets = google.sheets({ version: "v4", auth });
-
-  const timestamp = new Date().toISOString();
-
-  await sheets.spreadsheets.values.append({
-    spreadsheetId: sheetId,
-    range: "Sheet1!A:H",
-    valueInputOption: "USER_ENTERED",
-    requestBody: {
-      values: [
-        [
-          timestamp,
-          data.name,
-          data.email,
-          data.company,
-          data.website,
-          data.teamSize,
-          data.industry,
-          data.painPoint || "—",
+  const res = await fetch(
+    `https://api.airtable.com/v0/${baseId}/${tableId}`,
+    {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        records: [
+          {
+            fields: {
+              Name: data.name,
+              Email: data.email,
+              Company: data.company,
+              Website: data.website,
+              "Team Size": data.teamSize,
+              Industry: data.industry,
+              "Pain Point": data.painPoint || "",
+            },
+          },
         ],
-      ],
-    },
-  });
+      }),
+    }
+  );
+
+  if (!res.ok) {
+    const body = await res.text();
+    throw new Error(`Airtable API ${res.status}: ${body}`);
+  }
 }
 
 export async function POST(request: Request) {
@@ -111,11 +111,11 @@ export async function POST(request: Request) {
     );
   }
 
-  // 1. Append to Google Sheets CRM
+  // 1. Append to Airtable CRM
   try {
-    await appendToSheet(data);
+    await appendToAirtable(data);
   } catch (err) {
-    console.error("[audit] Failed to append to Google Sheet:", err);
+    console.error("[audit] Failed to append to Airtable:", err);
     // Non-fatal — continue with email notification
   }
 

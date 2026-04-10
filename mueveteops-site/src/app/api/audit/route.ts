@@ -63,34 +63,40 @@ async function appendToAirtable(data: AuditPayload): Promise<void> {
     return;
   }
 
-  const res = await fetch(
-    `https://api.airtable.com/v0/${baseId}/${tableId}`,
-    {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${token}`,
-        "Content-Type": "application/json",
+  const url = `https://api.airtable.com/v0/${baseId}/${tableId}`;
+  const payload = {
+    records: [
+      {
+        fields: {
+          Name: data.name,
+          Email: data.email,
+          Company: data.company,
+          Website: data.website,
+          "Team Size": data.teamSize,
+          Industry: data.industry,
+          "Pain Point": data.painPoint || "",
+        },
       },
-      body: JSON.stringify({
-        records: [
-          {
-            fields: {
-              Name: data.name,
-              Email: data.email,
-              Company: data.company,
-              Website: data.website,
-              "Team Size": data.teamSize,
-              Industry: data.industry,
-              "Pain Point": data.painPoint || "",
-            },
-          },
-        ],
-      }),
-    }
-  );
+    ],
+  };
+
+  console.log("[audit] Airtable request URL:", url);
+  console.log("[audit] Airtable request body:", JSON.stringify(payload, null, 2));
+
+  const res = await fetch(url, {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(payload),
+  });
+
+  const body = await res.text();
+  console.log("[audit] Airtable response status:", res.status);
+  console.log("[audit] Airtable response body:", body);
 
   if (!res.ok) {
-    const body = await res.text();
     throw new Error(`Airtable API ${res.status}: ${body}`);
   }
 }

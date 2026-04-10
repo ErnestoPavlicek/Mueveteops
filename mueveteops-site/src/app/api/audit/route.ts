@@ -101,6 +101,20 @@ async function appendToAirtable(data: AuditPayload): Promise<void> {
   }
 }
 
+export async function GET() {
+  const token = process.env.AIRTABLE_API_TOKEN ?? "";
+  const baseId = process.env.AIRTABLE_BASE_ID ?? "(not set)";
+  const tableId = process.env.AIRTABLE_TABLE_ID ?? "(not set)";
+  const maskedToken = token.length >= 8
+    ? `${token.slice(0, 4)}...${token.slice(-4)}`
+    : token ? "(too short)" : "(not set)";
+
+  return Response.json({
+    airtableUrl: `https://api.airtable.com/v0/${baseId}/${tableId}`,
+    tokenPreview: maskedToken,
+  });
+}
+
 export async function POST(request: Request) {
   let body: unknown;
   try {

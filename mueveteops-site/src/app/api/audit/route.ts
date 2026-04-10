@@ -53,66 +53,31 @@ function escapeHtml(value: string): string {
     .replace(/'/g, "&#39;");
 }
 
-async function appendToAirtable(data: AuditPayload): Promise<void> {
-  const token = process.env.AIRTABLE_API_TOKEN;
-  const baseId = process.env.AIRTABLE_BASE_ID;
-  const tableId = process.env.AIRTABLE_TABLE_ID;
+const SHEET_WEBHOOK =
+  "https://script.google.com/macros/s/AKfycbzebGKE0crifa2m2wvGVusDhKI_x7q-i2zW2ZdDFbFpbg2FzmKugW-8YMi1zbHmVumDQw/exec";
 
-  if (!token || !baseId || !tableId) {
-    console.warn("[audit] Airtable env vars not configured — skipping CRM append");
-    return;
-  }
-
-  const url = `https://api.airtable.com/v0/${baseId}/${tableId}`;
-  const payload = {
-    records: [
-      {
-        fields: {
-          Name: data.name,
-          Email: data.email,
-          Company: data.company,
-          Website: data.website,
-          "Team Size": data.teamSize,
-          Industry: data.industry,
-          "Pain Point": data.painPoint || "",
-        },
-      },
-    ],
-  };
-
-  console.log("[audit] Airtable request URL:", url);
-  console.log("[audit] Airtable request body:", JSON.stringify(payload, null, 2));
-
-  const res = await fetch(url, {
+async function appendToSheet(data: AuditPayload): Promise<void> {
+  const res = await fetch(SHEET_WEBHOOK, {
     method: "POST",
-    headers: {
-      Authorization: `Bearer ${token}`,
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(payload),
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      name: data.name,
+      email: data.email,
+      company: data.company,
+      website: data.website,
+      teamSize: data.teamSize,
+      industry: data.industry,
+      painPoint: data.painPoint || "",
+      priority: "New",
+      status: "New Lead",
+      tags: "AI Audit",
+    }),
   });
-
-  const body = await res.text();
-  console.log("[audit] Airtable response status:", res.status);
-  console.log("[audit] Airtable response body:", body);
 
   if (!res.ok) {
-    throw new Error(`Airtable API ${res.status}: ${body}`);
+    const body = await res.text();
+    throw new Error(`Google Sheets webhook ${res.status}: ${body}`);
   }
-}
-
-export async function GET() {
-  const token = process.env.AIRTABLE_API_TOKEN ?? "";
-  const baseId = process.env.AIRTABLE_BASE_ID ?? "(not set)";
-  const tableId = process.env.AIRTABLE_TABLE_ID ?? "(not set)";
-  const maskedToken = token.length >= 8
-    ? `${token.slice(0, 4)}...${token.slice(-4)}`
-    : token ? "(too short)" : "(not set)";
-
-  return Response.json({
-    airtableUrl: `https://api.airtable.com/v0/${baseId}/${tableId}`,
-    tokenPreview: maskedToken,
-  });
 }
 
 export async function POST(request: Request) {
@@ -131,15 +96,11 @@ export async function POST(request: Request) {
     );
   }
 
-  // 1. Append to Airtable CRM — fatal if it fails
+  // 1. Append to Google Sheet (best-effort — don't break UX if it fails)
   try {
-    await appendToAirtable(data);
+    await appendToSheet(data);
   } catch (err) {
-    console.error("[audit] Failed to append to Airtable:", err);
-    return Response.json(
-      { error: "Something went wrong saving your request. Please try again." },
-      { status: 500 },
-    );
+    console.error("[audit] Failed to append to Google Sheet:", err);
   }
 
   // 2. Send emails (best-effort — don't break UX if these fail)
@@ -276,11 +237,6 @@ export async function POST(request: Request) {
           <tr><td style="padding:8px 0;border-bottom:1px solid #f0f0f0;font-weight:600;color:#666;">Pain Point</td><td style="padding:8px 0;border-bottom:1px solid #f0f0f0;">${escapeHtml(data.painPoint || "\u2014")}</td></tr>
           <tr><td style="padding:8px 0;font-weight:600;color:#666;">Submitted</td><td style="padding:8px 0;">${timestamp}</td></tr>
         </table>
-        <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin-top:24px;">
-          <tr><td align="center">
-            <a href="https://airtable.com/appvO7XwGOwrdoYZR" target="_blank" style="display:inline-block;padding:10px 24px;background:#0066cc;color:#ffffff;text-decoration:none;border-radius:6px;font-size:13px;font-weight:600;">Open in Airtable &rarr;</a>
-          </td></tr>
-        </table>
       </td></tr>
     </table>
   </td></tr>
@@ -303,8 +259,6 @@ export async function POST(request: Request) {
           `Team Size: ${data.teamSize}`,
           `Pain Point: ${data.painPoint || "\u2014"}`,
           `Submitted: ${timestamp}`,
-          ``,
-          `Airtable: https://airtable.com/appvO7XwGOwrdoYZR`,
         ].join("\n"),
         html: notificationHtml,
       });

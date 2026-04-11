@@ -189,7 +189,7 @@ export async function POST(request: Request) {
             <table role="presentation" cellpadding="0" cellspacing="0" width="100%">
               <tr>
                 <td align="center" bgcolor="#0BFFC2" style="background-color:#0BFFC2;border-radius:10px;">
-                  <a href="https://calendly.com/mueveops" target="_blank" style="display:block;padding:16px 24px;font-size:15px;font-weight:700;color:#0A0A0F;text-decoration:none;text-align:center;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;">Book a Strategy Call &#8594;</a>
+                  <a href="https://calendly.com/ernst-mueveops/30min" target="_blank" style="display:block;padding:16px 24px;font-size:15px;font-weight:700;color:#0A0A0F;text-decoration:none;text-align:center;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;">Book a Strategy Call &#8594;</a>
                 </td>
               </tr>
             </table>

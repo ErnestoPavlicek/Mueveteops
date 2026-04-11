@@ -1,4 +1,5 @@
 import nodemailer from "nodemailer";
+import { google } from "googleapis";
 
 export const runtime = "nodejs";
 
@@ -53,31 +54,44 @@ function escapeHtml(value: string): string {
     .replace(/'/g, "&#39;");
 }
 
-const SHEET_WEBHOOK =
-  "https://script.google.com/macros/s/AKfycbzebGKE0crifa2m2wvGVusDhKI_x7q-i2zW2ZdDFbFpbg2FzmKugW-8YMi1zbHmVumDQw/exec";
+const SHEET_ID = "1hD16-Vojvv30DMRVvRvsBdJfy276Yp3SBMQvSVGcbiU";
+const SHEET_NAME = "Blad1";
 
 async function appendToSheet(data: AuditPayload): Promise<void> {
-  const res = await fetch(SHEET_WEBHOOK, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      name: data.name,
-      email: data.email,
-      company: data.company,
-      website: data.website,
-      teamSize: data.teamSize,
-      industry: data.industry,
-      painPoint: data.painPoint || "",
-      priority: "New",
-      status: "New Lead",
-      tags: "AI Audit",
-    }),
+  const keyJson = process.env.GOOGLE_SERVICE_ACCOUNT_KEY;
+  if (!keyJson) {
+    console.warn("[audit] GOOGLE_SERVICE_ACCOUNT_KEY not set — skipping sheet append");
+    return;
+  }
+
+  const creds = JSON.parse(keyJson);
+  const auth = new google.auth.GoogleAuth({
+    credentials: creds,
+    scopes: ["https://www.googleapis.com/auth/spreadsheets"],
   });
 
-  if (!res.ok) {
-    const body = await res.text();
-    throw new Error(`Google Sheets webhook ${res.status}: ${body}`);
-  }
+  const sheets = google.sheets({ version: "v4", auth });
+
+  await sheets.spreadsheets.values.append({
+    spreadsheetId: SHEET_ID,
+    range: `${SHEET_NAME}!A:K`,
+    valueInputOption: "USER_ENTERED",
+    requestBody: {
+      values: [[
+        data.name,
+        data.email,
+        data.company,
+        data.website,
+        data.teamSize,
+        data.industry,
+        data.painPoint || "",
+        "New",
+        "New Lead",
+        "AI Audit",
+        new Date().toISOString(),
+      ]],
+    },
+  });
 }
 
 export async function POST(request: Request) {
